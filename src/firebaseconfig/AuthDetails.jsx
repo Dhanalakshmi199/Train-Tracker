@@ -1,45 +1,54 @@
-import { onAuthStateChanged, signOut } from "firebase/auth";
 import React, { useEffect, useState } from "react";
-// import { auth } from "/firebase";
 import auth from "./firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 
-const AuthDetails = () => {
+export default function AuthDetails() {
   const [authUser, setAuthUser] = useState(null);
 
   useEffect(() => {
-    const listen = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setAuthUser(user);
-      } else {
-        setAuthUser(null);
+    try {
+      if (auth && typeof onAuthStateChanged === "function") {
+        const listen = onAuthStateChanged(auth, (user) => {
+          if (user) {
+            setAuthUser(user);
+          } else {
+            // Check fallback session
+            const stored = localStorage.getItem("train_tracker_user");
+            setAuthUser(stored ? JSON.parse(stored) : null);
+          }
+        });
+        return () => listen();
       }
-    });
-
-    return () => {
-      listen();
-    };
+    } catch (e) {
+      const stored = localStorage.getItem("train_tracker_user");
+      setAuthUser(stored ? JSON.parse(stored) : null);
+    }
   }, []);
 
   const userSignOut = () => {
-    signOut(auth)
-      .then(() => {
-        console.log("sign out successful");
-      })
-      .catch((error) => console.log(error));
+    try {
+      if (auth && typeof signOut === "function") {
+        signOut(auth);
+      }
+    } catch (e) {
+      // Ignore
+    }
+    localStorage.removeItem("train_tracker_user");
+    setAuthUser(null);
   };
 
   return (
-    <div>
+    <div className="auth-details-container">
       {authUser ? (
-        <>
-          <p>{`Signed In as ${authUser.email}`}</p>
-          <button onClick={userSignOut}>Sign Out</button>
-        </>
+        <div className="auth-logged-in">
+          <span>Signed In as: {authUser.email || authUser.displayName || "User"}</span>
+          <button onClick={userSignOut} className="auth-signout-btn">
+            Sign Out
+          </button>
+        </div>
       ) : (
-        <p>Signed Out</p>
+        <span className="auth-logged-out">Signed Out</span>
       )}
     </div>
   );
-};
-
-export default AuthDetails;
+}
