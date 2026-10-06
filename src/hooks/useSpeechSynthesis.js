@@ -1,20 +1,26 @@
 import { useCallback } from 'react';
 
 export const useSpeechSynthesis = () => {
-  const speak = useCallback((utterance) => {
+  const speak = useCallback((input) => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       const synth = window.speechSynthesis;
-      // Cancel previous speech if speaking
       if (synth.speaking) {
         synth.cancel();
       }
+      const utterance = typeof input === 'string' ? new SpeechSynthesisUtterance(input) : input;
       synth.speak(utterance);
     } else {
       console.warn('Speech synthesis is not supported in this browser.');
     }
   }, []);
 
-  return { speak };
+  const cancelSpeech = useCallback(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+  }, []);
+
+  return { speak, cancelSpeech };
 };
 
 export default useSpeechSynthesis;
