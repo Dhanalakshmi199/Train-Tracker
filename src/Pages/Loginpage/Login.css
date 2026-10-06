@@ -1,165 +1,159 @@
-.loginclass {
-  width: 100vw;
-  height: 100vh;
-  background-size: cover;
-  background-repeat: no-repeat;
-}
-.x {
-  height: 150px;
-}
-.loginbox {
-  background-color: rgba(16, 34, 46, 0.8);
-  margin-left: 900px;
-  height: 420px;
-  width: 400px;
-  border-radius: 10px;
+.auth-wrapper {
+  min-height: calc(100vh - 70px);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-color: rgb(93, 177, 188);
-  border-width: 3px;
-  border-style: solid;
-  box-shadow: 0px 0px 20px 4px black;
+  padding: 2rem 1.5rem;
+  background: radial-gradient(circle at 50% 0%, rgba(2, 132, 199, 0.08), transparent 70%);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
-.mail {
-  margin-top: 40px;
-  margin-bottom: 20px;
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1.25rem;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
 }
-.mailidtext {
-  color: rgb(8, 184, 207);
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.auth-logo .logo-icon {
+  font-size: 1.75rem;
+}
+
+.auth-logo .logo-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.auth-header h2 {
+  font-size: 1.6rem;
   font-weight: 700;
-  letter-spacing: 1.5px;
-  word-spacing: 2px;
-  font-size: 19px;
+  color: #0f172a;
+  margin: 0 0 0.4rem;
 }
-.mailidbox {
-  border-radius: 6px;
-  border: none;
-  margin-top: 5px;
-  width: 290px;
-  height: 40px;
-  padding-left: 10px;
-  box-shadow: 0px 2px 5px 0px rgb(0, 0, 0);
-  border-width: 2px;
-  border-color: rgb(93, 177, 188);
-  border-style: solid;
-  transition: all 0.15s ease-in-out;
-  outline: none;
+
+.auth-header p {
+  color: #64748b;
+  font-size: 0.925rem;
+  margin: 0;
+}
+
+.auth-error-alert {
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  color: #b91c1c;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  margin-bottom: 1.25rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-group label {
+  font-size: 0.875rem;
   font-weight: 600;
-  font-size: 15px;
-  background-color: rgba(16, 34, 46, 1);
-  color: rgb(93, 177, 188);
+  color: #334155;
 }
-.mailidbox:hover {
-  transform: scale(1.1);
-  cursor: pointer;
+
+.form-group input {
+  padding: 0.85rem 1rem;
+  border-radius: 0.65rem;
+  border: 1px solid #cbd5e1;
+  font-size: 0.95rem;
+  color: #0f172a;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-group input:focus {
   outline: none;
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
 }
-.pass {
-  margin-bottom: 15px;
-}
-.passtxt {
-  color: rgb(8, 184, 207);
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  word-spacing: 2px;
-  font-size: 19px;
-}
-.passbox {
-  border: none;
-  margin-top: 5px;
-  height: 40px;
-  padding-left: 10px;
-  width: 290px;
-  background-color: rgba(16, 34, 46, 1);
-  border-radius: 6px;
-  box-shadow: 0px 2px 5px 0px rgb(0, 0, 0);
-  border-width: 2px;
-  border-color: rgb(93, 177, 188);
-  border-style: solid;
+
+.auth-btn {
+  padding: 0.85rem 1rem;
+  border-radius: 0.65rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  font-size: 15px;
-  color: rgb(93, 177, 188);
-  outline: none;
-  transition: all 0.15s ease-in-out;
-}
-.passbox:hover {
-  transform: scale(1.1);
   cursor: pointer;
-  outline: none;
+  transition: all 0.15s ease;
+  border: none;
 }
-.fgpassbtn {
-  width: 308px;
-  height: 35px;
-  margin-bottom: 30px;
-  transition: all 0.15s ease-in-out;
-  outline: none;
-  background-color: rgb(76, 21, 8);
-  border-radius: 3px;
-  box-shadow: 0px 2px 5px 0px rgb(0, 0, 0);
-  border-width: 1px;
-  border-color: rgb(93, 177, 188);
-  border-style: solid;
-  font-weight: 900;
-  font-size: 13px;
-  letter-spacing: 2px;
-  word-spacing: 3px;
-  color: rgb(93, 177, 188);
-  outline: none;
+
+.auth-btn.primary {
+  background: #0284c7;
+  color: white;
 }
-.fgpassbtn:hover {
-  transform: scale(1.1);
-  cursor: pointer;
-  outline: none;
+
+.auth-btn.primary:hover {
+  background: #0369a1;
 }
-.loginbtn {
-  width: 308px;
-  height: 40px;
-  margin-bottom: 20px;
-  transition: all 0.15s ease-in-out;
-  outline: none;
-  background-image: linear-gradient(90deg, rgb(228, 98, 6), rgb(5, 130, 161));
-  border-radius: 3px;
-  box-shadow: 0px 2px 5px 0px rgb(0, 0, 0);
-  border-width: 1px;
-  border-color: rgb(93, 177, 188);
-  border-style: solid;
-  font-weight: 900;
-  font-size: 19px;
-  letter-spacing: 2px;
-  word-spacing: 3px;
-  color: rgb(0, 0, 0);
+
+.auth-btn.demo-btn {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  color: #0284c7;
+  margin-top: 0.25rem;
 }
-.loginbtn:hover {
-  transform: scale(1.1);
-  cursor: pointer;
-  outline: none;
+
+.auth-btn.demo-btn:hover {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #166534;
 }
-.signupbtn {
-  width: 308px;
-  height: 40px;
-  margin-bottom: 40px;
-  transition: all 0.15s ease-in-out;
-  outline: none;
-  background-image: linear-gradient(90deg, rgb(228, 98, 6), rgb(5, 130, 161));
-  border-radius: 3px;
-  box-shadow: 0px 2px 5px 0px rgb(0, 0, 0);
-  border-width: 1px;
-  border-color: rgb(93, 177, 188);
-  border-style: solid;
-  font-weight: 900;
-  font-size: 19px;
-  letter-spacing: 2px;
-  word-spacing: 3px;
-  color: rgb(0, 0, 0);
+
+.auth-footer {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f1f5f9;
 }
-.signupbtn:hover {
-  transform: scale(1.1);
-  cursor: pointer;
-  outline: none;
+
+.auth-footer p {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: 0 0 1rem;
 }
-.invalid{
-  color: red;
-  font-weight: 900;
+
+.auth-footer a {
+  color: #0284c7;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+.stats-tagline {
+  font-size: 0.775rem;
+  color: #94a3b8;
+  line-height: 1.4;
 }
