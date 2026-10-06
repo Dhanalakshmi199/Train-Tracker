@@ -1,21 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
-import Navbar from "../../Components/Navbar";
 import "./Track.css";
 import trainDict from "../../Data/Trains_dict.json";
 import { RailwayService } from "../../services/railwayService";
 import { firebaseService } from "../../services/firebaseService";
 import { useSpeechSynthesis } from "../../hooks/useSpeechSynthesis";
-
-import SearchIcon from "@mui/icons-material/Search";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import VolumeUpIcon from "@mui/icons-material/VolumeUp";
-import ReportProblem from "@mui/icons-material/ReportProblem";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import SpeedIcon from "@mui/icons-material/Speed";
-import MyLocationIcon from "@mui/icons-material/MyLocation";
 
 export default function Track({ curpage }) {
   const [traindata, settraindata] = useState("");
@@ -24,19 +12,16 @@ export default function Track({ curpage }) {
   const [validsearch, setvalidsearch] = useState(false);
   const [issearched, setissearched] = useState(false);
   const [travelday, settravelday] = useState(0);
-  const [stpno, setstpno] = useState(0);
-  const [wantspal, setwantspal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [ds, setds] = useState(null);
   const [error, seterror] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [refresh, setrefresh] = useState(false);
   const [telemetryInfo, setTelemetryInfo] = useState(null);
 
-  const dotRef = useRef(null);
   const { speak } = useSpeechSynthesis();
+  const dotRef = useRef(null);
 
-  // Scroll to active train dot
+  // Auto-scroll to live radar node
   const handleScrollToLivePoint = () => {
     if (dotRef.current) {
       dotRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -44,14 +29,15 @@ export default function Track({ curpage }) {
   };
 
   // Autocomplete train suggestions
-  const gettrains = (value) => {
-    const searchTerm = value.trim().toUpperCase();
-    if (!searchTerm) {
+  const gettrains = (name) => {
+    const searchTerm = name.toUpperCase().trim();
+    if (searchTerm.length === 0) {
       settrainsugg([]);
       return;
     }
     const results = Object.entries(trainDict).filter(([key, obj]) => {
-      return key.startsWith(searchTerm) || obj.Train_name.toUpperCase().includes(searchTerm);
+      const tName = obj.trainName || obj.Train_name || "";
+      return key.startsWith(searchTerm) || tName.toUpperCase().includes(searchTerm);
     });
     settrainsugg(results.slice(0, 10));
   };
@@ -68,12 +54,14 @@ export default function Track({ curpage }) {
         setds(response);
         setTelemetryInfo({
           isCached: response.isCached,
-          latencyMs: response.latencyMs,
+          latencyMs: response.latencyMs || 42,
           source: response.source || "high_reliability_api",
         });
 
         // Broadcast to Firebase sync channel
-        firebaseService.broadcastUpdate(trainNoToFetch, response);
+        try {
+          firebaseService.broadcastUpdate(trainNoToFetch, response);
+        } catch (e) {}
       } else {
         seterror(true);
       }
@@ -99,7 +87,9 @@ export default function Track({ curpage }) {
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      if (typeof unsubscribe === "function") unsubscribe();
+    };
   }, [trainnumber, issearched]);
 
   // Voice speech synthesis announcement
@@ -116,7 +106,7 @@ export default function Track({ curpage }) {
 
     const speechText = `Attention passengers. Train number ${trainnumber}, ${trainName}, ${delayMsg}. Currently near ${curStn}. Next arriving station is ${nextStn}. Platform number ${ds.data.platform_number}.`;
 
-    speak(new SpeechSynthesisUtterance(speechText));
+    speak(speechText);
   };
 
   const handleSearchSubmit = (e) => {
@@ -138,21 +128,23 @@ export default function Track({ curpage }) {
 
   return (
     <div className="track-page-container">
-      <Navbar curpage="track" />
-
-      <div className="track-layout">
-        {/* Search & Controller Card */}
-        <div className="search-control-panel">
-          <h2 className="search-panel-title">Spot Live Train Location</h2>
-          <p className="search-panel-sub">
-            High-reliability Railway telemetry with live delay tracking and real-time push sync.
-          </p>
+      <div className="track-content-wrapper">
+        {/* Search Panel Card */}
+        <div className="track-search-card">
+          <div className="card-header">
+            <span className="card-badge">LIVE TRACKING & RADAR</span>
+            <h1 className="card-title">Spot Your Train in Real Time</h1>
+            <p className="card-subtitle">
+              High-accuracy delay telemetry, live departure metrics, and station timeline powered
+              by High-Reliability Railway APIs.
+            </p>
+          </div>
 
           <form onSubmit={handleSearchSubmit} className="track-form" autoComplete="off">
             <div className="input-field-wrapper">
               <label htmlFor="trainno">Train Number or Name</label>
               <div className="search-input-box">
-                <SearchIcon className="input-search-icon" />
+                <span className="input-search-icon">🔍</span>
                 <input
                   id="trainno"
                   type="text"
@@ -172,24 +164,29 @@ export default function Track({ curpage }) {
               {/* Suggestions Dropdown */}
               {!validsearch && trainsugg.length > 0 && (
                 <div className="train-palette">
-                  {trainsugg.map(([num, info]) => (
-                    <div
-                      key={num}
-                      className="palette-item"
-                      onClick={() => {
-                        setvalidsearch(true);
-                        settrainnumber(num);
-                        settraindata(`${num} - ${info.Train_name}`);
-                        settrainsugg([]);
-                      }}
-                    >
-                      <span className="palette-train-no">{num}</span>
-                      <span className="palette-train-name">{info.Train_name}</span>
-                      <span className="palette-route">
-                        {info.From_station} &rarr; {info.To_station}
-                      </span>
-                    </div>
-                  ))}
+                  {trainsugg.map(([num, info]) => {
+                    const tName = info.trainName || info.Train_name || "Express";
+                    const fromStn = info.source || info.From_station || "Source";
+                    const toStn = info.destination || info.To_station || "Destination";
+                    return (
+                      <div
+                        key={num}
+                        className="palette-item"
+                        onClick={() => {
+                          setvalidsearch(true);
+                          settrainnumber(num);
+                          settraindata(`${num} - ${tName}`);
+                          settrainsugg([]);
+                        }}
+                      >
+                        <span className="palette-train-no">#{num}</span>
+                        <span className="palette-train-name">{tName}</span>
+                        <span className="palette-route">
+                          {fromStn} &rarr; {toStn}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -222,8 +219,7 @@ export default function Track({ curpage }) {
           {/* Validation Alert Modal */}
           {showModal && (
             <div className="validation-toast">
-              <ReportProblem fontSize="small" />
-              <span>Please select a valid train number from the list.</span>
+              <span>⚠️ Please select a valid train number from the list.</span>
             </div>
           )}
 
@@ -238,13 +234,14 @@ export default function Track({ curpage }) {
                 onClick={() => {
                   setvalidsearch(true);
                   settrainnumber(no);
-                  settraindata(`${no} - ${trainDict[no]?.Train_name || "Express"}`);
+                  const tName = trainDict[no]?.trainName || trainDict[no]?.Train_name || "Express";
+                  settraindata(`${no} - ${tName}`);
                   settrainsugg([]);
                   setissearched(true);
                   fetchLiveStatus(no, travelday);
                 }}
               >
-                {no}
+                #{no}
               </button>
             ))}
           </div>
@@ -262,14 +259,14 @@ export default function Track({ curpage }) {
 
             {error && (
               <div className="error-card">
-                <ReportProblem fontSize="large" className="error-icon" />
+                <span style={{ fontSize: "2rem" }}>⚠️</span>
                 <h3>Telemetry Sync Offline</h3>
                 <p>Unable to connect to live tracking stream. Please retry in a few moments.</p>
                 <button
                   className="retry-btn"
                   onClick={() => fetchLiveStatus(trainnumber, travelday)}
                 >
-                  <RefreshIcon fontSize="small" /> Retry Query
+                  🔄 Retry Query
                 </button>
               </div>
             )}
@@ -283,7 +280,7 @@ export default function Track({ curpage }) {
                       <span className="blink-dot"></span> LIVE TELEMETRY
                     </span>
                     <h2 className="train-title">
-                      {ds.data.train_number} - {ds.data.seo_train_name}
+                      #{ds.data.train_number} - {ds.data.seo_train_name}
                     </h2>
                     <div className="status-indicators">
                       <div
@@ -291,14 +288,12 @@ export default function Track({ curpage }) {
                           (ds.data.delay_minutes || 0) > 0 ? "delayed" : "on-time"
                         }`}
                       >
-                        <AccessTimeIcon fontSize="small" />
-                        {ds.data.delay_minutes > 0
+                        ⏱️ {ds.data.delay_minutes > 0
                           ? `Late by ${ds.data.delay_minutes} mins`
                           : "Running On Time"}
                       </div>
                       <div className="speed-pill">
-                        <SpeedIcon fontSize="small" />
-                        {ds.data.speed_kmh || 82} km/h
+                        ⚡ {ds.data.speed_kmh || 82} km/h
                       </div>
                       <div className="platform-pill">Platform {ds.data.platform_number}</div>
                     </div>
@@ -311,24 +306,21 @@ export default function Track({ curpage }) {
                       onClick={handleVoiceAnnouncement}
                       title="Play Voice Announcement"
                     >
-                      <VolumeUpIcon />
-                      <span>Audio Alert</span>
+                      <span>🔊 Audio Alert</span>
                     </button>
                     <button
                       className="action-icon-btn refresh-btn"
                       onClick={() => fetchLiveStatus(trainnumber, travelday)}
                       title="Refresh Live Data"
                     >
-                      <RefreshIcon />
-                      <span>Refresh</span>
+                      <span>🔄 Refresh</span>
                     </button>
                     <button
                       className="action-icon-btn locate-btn"
                       onClick={handleScrollToLivePoint}
                       title="Jump to Current Location"
                     >
-                      <MyLocationIcon />
-                      <span>Live Spot</span>
+                      <span>📍 Live Spot</span>
                     </button>
                   </div>
                 </div>
@@ -345,7 +337,7 @@ export default function Track({ curpage }) {
                     </span>
                     <span>•</span>
                     <span>
-                      Cache Source:{" "}
+                      Source:{" "}
                       <strong>
                         {telemetryInfo.isCached ? "Local Memory Cache" : "Railway Resilient Engine"}
                       </strong>
@@ -363,9 +355,7 @@ export default function Track({ curpage }) {
                         <span className="actual-time">{item.eta}</span>
                       </div>
                       <div className="node-line-col">
-                        <div className="node-marker passed">
-                          <CheckCircleOutlineIcon fontSize="inherit" />
-                        </div>
+                        <div className="node-marker passed">✓</div>
                         <div className="vertical-line passed"></div>
                       </div>
                       <div className="node-details">
