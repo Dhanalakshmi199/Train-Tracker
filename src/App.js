@@ -18,11 +18,24 @@ function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/home" replace />} />
             <Route path="/home" element={<Home />} />
+            
+            {/* Live Train Tracking */}
             <Route path="/track" element={<Track />} />
+            <Route path="/livelocation" element={<Track />} />
+            
+            {/* Trains Between Stations */}
             <Route path="/tbstns" element={<Tbstns />} />
+            <Route path="/trainsbetweenstations" element={<Tbstns />} />
+            
+            {/* Train Schedules */}
             <Route path="/tschedule" element={<Tschedule />} />
+            <Route path="/trainschedule" element={<Tschedule />} />
+            
+            {/* Authentication */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            
+            {/* Fallback */}
             <Route path="*" element={<Navigate to="/home" replace />} />
           </Routes>
         </main>
